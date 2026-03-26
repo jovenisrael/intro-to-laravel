@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laravel + Blade CRUD Tutorial - Student Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+    <style>
+        .code-block { background-color: #f8f9fa; border-left: 4px solid #FF2D20; padding: 15px; margin: 15px 0; border-radius: 5px; }
+        .step-number { background-color: #FF2D20; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; }
+        .function-explanation { background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .why-section { background-color: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .file-structure { background-color: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace; border: 1px solid #dee2e6; white-space: pre-wrap; }
+        .navbar-laravel { position: sticky; top: 0; z-index: 1000; background-color: #3d3736 !important; }
+        body { padding-top: 60px; }
+        .section { margin-bottom: 50px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-laravel fixed-top d-flex justify-content-between align-items-center flex-column">
+        <div class="d-flex justify-content-between align-items-center flex-column">
+            <a class="navbar-brand" href="#home">Laravel CRUD Tutorial</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#prereq">1. Prerequisites</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#install">2. Install Laravel</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#env">3. .env</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#database">4. Database</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#migration">5. Migration</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#structure">6. Structure</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#mvc-explained">MVC</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#mvc">7. Model &amp; Controller</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#blade">8. Blade View</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#routes">9. Routes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#testing">10. Testing</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <section id="home" class="section">
+            <div class="text-center">
+                <h1 class="display-4" style="color: #FF2D20;">Laravel + Blade CRUD Tutorial</h1>
+                <p class="lead">Student Management System — same idea as plain PHP, using Laravel’s structure</p>
+                <p class="text-muted">Migrations for the schema, <code>.env</code> for configuration, controllers for logic, Blade for the frontend</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="alert alert-info">
+                <h4>What you’ll learn</h4>
+                <ul class="mb-0">
+                    <li>Installing Laravel with <strong>Composer</strong></li>
+                    <li>What the <strong>.env</strong> file is for and which variables matter</li>
+                    <li>Creating the database and running <strong>migrations</strong> (instead of pasting SQL only)</li>
+                    <li><strong>Eloquent</strong> model, <strong>controller</strong> actions, and <strong>Blade</strong> templates</li>
+                    <li>How the <strong>model</strong>, <strong>controller</strong>, and <strong>view (Blade)</strong> split responsibilities</li>
+                    <li>Listing students and <strong>creating</strong> new ones with validation and CSRF protection</li>
+                    <li>Running the app with <code>php artisan serve</code> (or Apache pointing at <code>public/</code>)</li>
+                    <li>Laravel is a MVC framework, which stands for Model, View, and Controller.</li>
+                    <li>Laravel documentation is available at <a href="https://laravel.com/docs" target="_blank">https://laravel.com/docs</a></li>
+                </ul>
+                <p class="text-muted mt-5">Please note that every command should be run in terminal or command prompt.</p>
+            </div>
+        </section>
+
+        <!-- 1 Prerequisites -->
+        <section id="prereq" class="section">
+            <h2><span class="step-number">1</span>Prerequisites</h2>
+            <p>You need PHP and MySQL available (XAMPP is fine). Laravel also requires the <strong>Composer</strong> dependency manager.</p>
+            <h3>Check PHP</h3>
+            <p>In a terminal (PowerShell or Command Prompt):</p>
+            <div class="code-block"><pre><code class="language-bash">php -v</code></pre> </div>
+            <p>Laravel 10+ typically needs PHP 8.1 or newer. Enable common extensions (OpenSSL, PDO, Mbstring, Tokenizer, XML, Ctype, JSON, BCMath).</p>
+            <h3>XAMPP (MySQL)</h3>
+            <ol>
+                <li>Start <strong>Apache</strong> and <strong>MySQL</strong> from the XAMPP Control Panel.</li>
+                <li>phpMyAdmin: <a href="http://localhost/phpmyadmin" target="_blank">http://localhost/phpmyadmin</a></li>
+            </ol>
+        </section>
+
+        <!-- 2 Install Composer & Laravel -->
+        <section id="install" class="section">
+            <h2><span class="step-number">2</span>Install Composer, then Laravel</h2>
+            <h3>Install Composer</h3>
+            <ol>
+                <li>Download the Windows installer from <a href="https://getcomposer.org/download/" target="_blank">https://getcomposer.org/download/</a></li>
+                <li>Run it and ensure it can find your <code>php.exe</code> (often under <code>C:\xampp\php\php.exe</code>).</li>
+                <li>Verify in terminal or command prompt:</li>
+            </ol>
+            <div class="code-block"><pre><code class="language-bash">composer -V</code></pre></div>
+
+            <h3>Create a new Laravel project</h3>
+            <p>From a folder where you keep projects (example: your user folder or next to <code>htdocs</code>): open terminal or command prompt and run the following commands:</p>
+            <div class="code-block"><pre><code class="language-bash">composer create-project laravel/laravel student-crud
+cd student-crud</code></pre></div>
+
+            <div class="why-section">
+                <h5>What this does</h5>
+                <ul class="mb-0">
+                    <li><code>create-project</code> downloads Laravel and installs PHP packages into <code>vendor/</code>.</li>
+                    <li><code>student-crud</code> is your app folder name; change it if you like.</li>
+                </ul>
+            </div>
+
+            <h3>Application key</h3>
+            <p>After copying <code>.env</code> (next section), generate the app key once:</p>
+            <div class="code-block"><pre><code class="language-bash">php artisan key:generate</code></pre></div>
+        </section>
+
+        <!-- 3 .env -->
+        <section id="env" class="section">
+            <h2><span class="step-number">3</span>The <code>.env</code> file</h2>
+            <p>Laravel reads environment variables from <code>.env</code> at the root of the project. This keeps secrets and machine-specific settings out of your code.</p>
+
+            <h3>First-time setup</h3>
+            <ol>
+                <li>Copy the example file: <code>.env.example</code> → <code>.env</code> (Laravel’s installer may already do this).</li>
+                <li>Run <code>php artisan key:generate</code> so <code>APP_KEY</code> is set (used for encryption and sessions).</li>
+            </ol>
+
+            <h3>Important variables (typical local XAMPP setup)</h3>
+            <div class="code-block"><pre><code class="language-ini">APP_NAME=StudentCRUD
+APP_ENV=local
+APP_KEY=base64:...          # set by key:generate — do not invent manually
+APP_DEBUG=true              # show detailed errors in development only
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=student_crud
+DB_USERNAME=root
+DB_PASSWORD=</code></pre></div>
+
+            <div class="function-explanation">
+                <h5>What each group is for</h5>
+                <ul class="mb-0">
+                    <li><strong>APP_*</strong> — application name, environment (<code>local</code> vs <code>production</code>), encryption key, debug mode, base URL.</li>
+                    <li><strong>DB_*</strong> — how Laravel connects to MySQL (used by migrations and Eloquent).</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>Security:</strong> Never commit real <code>.env</code> files to public repositories. Commit <code>.env.example</code> with placeholder values only. In production, set <code>APP_DEBUG=false</code> and use strong database credentials.
+            </div>
+
+            <p>Config files under <code>config/</code> (for example <code>config/database.php</code>) read these values via <code>env('DB_HOST')</code>, etc. After changing <code>.env</code>, you usually do not need to restart anything except your web server if applicable.</p>
+        </section>
+
+        <!-- 4 Database -->
+        <section id="database" class="section">
+            <h2><span class="step-number">4</span>Create the empty database</h2>
+            <p>In phpMyAdmin, create a database named <code>student_crud</code> (same as <code>DB_DATABASE</code> in <code>.env</code>). You do <strong>not</strong> need to run the <code>CREATE TABLE</code> SQL by hand — the migration in the next step will create the <code>students</code> table.</p>
+        </section>
+
+        <!-- 5 Migration -->
+        <section id="migration" class="section">
+            <h2><span class="step-number">5</span>Migration (schema as code)</h2>
+            <p>Migrations are PHP files that describe your tables. They are versioned, repeatable, and team-friendly.</p>
+
+            <h3>Generate model + migration</h3>
+            <div class="code-block"><pre><code class="language-bash">php artisan make:model Student -m</code></pre></div>
+            <p>This creates <code>app/Models/Student.php</code> and a new file in <code>database/migrations/</code> like <code>xxxx_xx_xx_xxxxxx_create_students_table.php</code>.</p>
+
+            <h3>Edit the migration</h3>
+            <p>Open that migration file and use:</p>
+            <div class="code-block"><pre><code class="language-php">&lt;?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('students', function (Blueprint $table) {
+            $table-&gt;id();
+            $table-&gt;string('first_name', 50);
+            $table-&gt;string('last_name', 50);
+            $table-&gt;unsignedTinyInteger('age');
+            $table-&gt;timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('students');
+    }
+};
+</code></pre></div>
+
+            <div class="function-explanation">
+                <h5>Notes</h5>
+                <ul class="mb-0">
+                    <li><code>id()</code> — auto-increment primary key (like your plain PHP tutorial).</li>
+                    <li><code>timestamps()</code> — adds <code>created_at</code> and <code>updated_at</code> (Laravel convention).</li>
+                    <li><code>down()</code> — reverses the migration if you run <code>php artisan migrate:rollback</code>.</li>
+                </ul>
+            </div>
+
+            <h3>Run migrations</h3>
+            <div class="code-block"><pre><code class="language-bash">php artisan migrate</code></pre></div>
+        </section>
+
+        <!-- 6 Structure -->
+        <section id="structure" class="section">
+            <h2><span class="step-number">6</span>Laravel project structure (relevant parts)</h2>
+            <div class="file-structure">student-crud/
+├── .env                          # environment config (not committed)
+├── app/
+│   └── Http/Controllers/
+│       └── StudentController.php # request handling (like your crud/*.php)
+│   └── Models/
+│       └── Student.php           # Eloquent model
+├── database/migrations/          # schema versions
+├── resources/views/
+│   └── students/
+│       └── index.blade.php       # HTML + Blade (frontend)
+├── routes/web.php                # URL → controller mapping
+└── public/                       # web server document root</div>
+
+            <div class="why-section">
+                <h5>Compared to plain PHP</h5>
+                <ul class="mb-0">
+                    <li><strong>Migration</strong> replaces manual <code>CREATE TABLE</code> in phpMyAdmin (you still create the empty database).</li>
+                    <li><strong>Controller</strong> replaces standalone scripts like <code>create_student.php</code>.</li>
+                    <li><strong>Blade</strong> replaces mixed PHP/HTML in <code>index.php</code> with cleaner templates.</li>
+                    <li><strong>.env</strong> replaces hard-coded <code>define('DB_...')</code> in <code>dbconn.php</code>.</li>
+                </ul>
+            </div>
+
+            <h3 id="mvc-explained">Model, view, and controller — when and how we use each</h3>
+            <p>Laravel follows an <strong>MVC</strong> style: <strong>M</strong>odel (data), <strong>V</strong>iew (what the user sees), <strong>C</strong>ontroller (glue between browser, model, and view). A simple flow: the browser hits a <strong>route</strong> → Laravel runs a <strong>controller</strong> method → the controller may use the <strong>model</strong> to load or save data → the controller returns a <strong>view</strong> (HTML) or a <strong>redirect</strong> (after a form submit).</p>
+
+            <div class="function-explanation">
+                <h5>Model — <code>app/Models/Student.php</code></h5>
+                <p><strong>When we use it:</strong> Whenever we need to work with the <code>students</code> table: list rows, insert a row, update, delete, or later add relationships. One model class usually represents one database table.</p>
+                <p><strong>How we use it in this tutorial:</strong> We do <strong>not</strong> put SQL in the Blade file. Instead, the controller calls Eloquent on the model, for example <code>Student::orderBy('id')-&gt;get()</code> to read all students and <code>Student::create([...])</code> to insert. The model knows the table name (Laravel infers <code>students</code> from <code>Student</code>) and which columns are mass-assignable via <code>$fillable</code>.</p>
+            </div>
+
+            <div class="function-explanation">
+                <h5>Controller — <code>app/Http/Controllers/StudentController.php</code></h5>
+                <p><strong>When we use it:</strong> For every web request you want to handle with your own logic: showing a page, accepting a form POST, returning JSON (API), and so on. Routes in <code>routes/web.php</code> point URLs to controller methods.</p>
+                <p><strong>How we use it in this tutorial:</strong> <code>index()</code> fetches students through the model, then passes them to the view with <code>return view('students.index', compact('students'))</code>. <code>store()</code> reads the HTTP request, <strong>validates</strong> input, creates a row via the model, then <strong>redirects</strong> back to the list with a flash message — it does not print HTML itself. Keeping requests, validation, and redirects in the controller keeps templates simple.</p>
+            </div>
+
+            <div class="function-explanation">
+                <h5>View (Blade) — <code>resources/views/students/index.blade.php</code></h5>
+                <p><strong>When we use it:</strong> For anything visual: layout, tables, buttons, modals, forms. If it is markup the user sees in the browser, it belongs in a view (or partials included by a view).</p>
+                <p><strong>How we use it in this tutorial:</strong> The view receives data only as variables (here, <code>$students</code>). It uses Blade syntax (<code>@foreach</code>, <code>{{ $student-&gt;first_name }}</code>) to render HTML. The form’s <code>action</code> posts to a <strong>named route</strong> that maps to <code>store()</code> — the view does not run database queries; it only displays data and collects input.</p>
+            </div>
+
+            <div class="why-section">
+                <h5>Quick rule of thumb</h5>
+                <ul class="mb-0">
+                    <li><strong>Model</strong> — database table + rules about that data (fillable, casts, relations).</li>
+                    <li><strong>Controller</strong> — “what happens for this URL / this form submit?” (orchestration).</li>
+                    <li><strong>View</strong> — “how does this page look?” (presentation only).</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 7 Model Controller -->
+        <section id="mvc" class="section">
+            <h2><span class="step-number">7</span>Model and controller</h2>
+            <p class="text-muted">The roles of the <strong>model</strong> and <strong>controller</strong> are summarized in <a href="#mvc-explained">section 6 — Model, view, and controller</a>. Below is the code for this project.</p>
+
+            <h3><code>app/Models/Student.php</code></h3>
+            <div class="code-block"><pre><code class="language-php">&lt;?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Student extends Model
+{
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'age',
+    ];
+}
+</code></pre></div>
+            <p><code>$fillable</code> allows mass assignment for <code>Student::create([...])</code> safely.</p>
+
+            <h3>Create the controller</h3>
+            <div class="code-block"><pre><code class="language-bash">php artisan make:controller StudentController</code></pre></div>
+
+            <h3><code>app/Http/Controllers/StudentController.php</code></h3>
+            <div class="code-block"><pre><code class="language-php">&lt;?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Student;
+use Illuminate\Http\Request;
+
+class StudentController extends Controller
+{
+    public function index()
+    {
+        $students = Student::orderBy('id')-&gt;get();
+
+        return view('students.index', compact('students'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request-&gt;validate([
+            'first_name' =&gt; ['required', 'string', 'max:50'],
+            'last_name'  =&gt; ['required', 'string', 'max:50'],
+            'age'        =&gt; ['required', 'integer', 'min:1', 'max:255'],
+        ]);
+
+        Student::create($validated);
+
+        return redirect()
+            -&gt;route('students.index')
+            -&gt;with('success', 'Student created successfully!');
+    }
+}
+</code></pre></div>
+
+            <div class="function-explanation">
+                <h5>How this maps to your old tutorial</h5>
+                <ul class="mb-0">
+                    <li><code>index</code> — same as selecting all rows and showing the table.</li>
+                    <li><code>store</code> — same as <code>create_student.php</code>: validate, insert, redirect with a message.</li>
+                    <li><code>$request-&gt;validate()</code> — server-side validation (complements HTML5 <code>required</code>).</li>
+                    <li>Eloquent builds parameterized queries for you (similar goal to prepared statements).</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 8 Blade -->
+        <section id="blade" class="section">
+            <h2><span class="step-number">8</span>Blade view — <code>resources/views/students/index.blade.php</code></h2>
+            <p class="text-muted">This file is the <strong>view</strong> layer: presentation only. See <a href="#mvc-explained">when and how we use the view</a> versus the model and controller.</p>
+            <p>Create the folder <code>resources/views/students/</code> and add <code>index.blade.php</code>:</p>
+            <div class="code-block"><pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Students — Laravel CRUD&lt;/title&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class="container"&gt;
+    &lt;h1 class="text-center p-5 bg-dark text-white mb-3"&gt;CRUD WITH LARAVEL + BLADE&lt;/h1&gt;
+
+    @if (session('success'))
+        &lt;div class="alert alert-success alert-dismissible fade show" role="alert"&gt;
+            {{ session('success') }}
+            &lt;button type="button" class="btn-close" data-bs-dismiss="alert"&gt;&lt;/button&gt;
+        &lt;/div&gt;
+    @endif
+
+    @if ($errors-&gt;any())
+        &lt;div class="alert alert-danger alert-dismissible fade show" role="alert"&gt;
+            &lt;ul class="mb-0"&gt;
+                @foreach ($errors-&gt;all() as $error)
+                    &lt;li&gt;{{ $error }}&lt;/li&gt;
+                @endforeach
+            &lt;/ul&gt;
+            &lt;button type="button" class="btn-close" data-bs-dismiss="alert"&gt;&lt;/button&gt;
+        &lt;/div&gt;
+    @endif
+
+    &lt;div class="d-flex justify-content-between mb-3"&gt;
+        &lt;h3&gt;All Students&lt;/h3&gt;
+        &lt;button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#studentModal"&gt;Create&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;div class="table-responsive"&gt;
+        &lt;table class="table table-bordered table-striped table-hover"&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;&lt;th&gt;ID&lt;/th&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Age&lt;/th&gt;&lt;th&gt;Action&lt;/th&gt;&lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                @forelse ($students as $student)
+                    &lt;tr&gt;
+                        &lt;td&gt;{{ $student-&gt;id }}&lt;/td&gt;
+                        &lt;td&gt;{{ $student-&gt;first_name }} {{ $student-&gt;last_name }}&lt;/td&gt;
+                        &lt;td&gt;{{ $student-&gt;age }}&lt;/td&gt;
+                        &lt;td&gt;&lt;/td&gt;
+                    &lt;/tr&gt;
+                @empty
+                    &lt;tr&gt;&lt;td colspan="4"&gt;No students yet.&lt;/td&gt;&lt;/tr&gt;
+                @endforelse
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- Modal --&gt;
+&lt;div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true"&gt;
+  &lt;div class="modal-dialog"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;form action="{{ route('students.store') }}" method="POST"&gt;
+        @csrf
+        &lt;div class="modal-header"&gt;
+          &lt;h5 class="modal-title" id="studentModalLabel"&gt;Add Student&lt;/h5&gt;
+          &lt;button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="modal-body"&gt;
+            &lt;div class="mb-3"&gt;
+              &lt;label for="firstName" class="form-label"&gt;First Name&lt;/label&gt;
+              &lt;input type="text" class="form-control" id="firstName" name="first_name" value="{{ old('first_name') }}" required&gt;
+            &lt;/div&gt;
+            &lt;div class="mb-3"&gt;
+              &lt;label for="lastName" class="form-label"&gt;Last Name&lt;/label&gt;
+              &lt;input type="text" class="form-control" id="lastName" name="last_name" value="{{ old('last_name') }}" required&gt;
+            &lt;/div&gt;
+            &lt;div class="mb-3"&gt;
+              &lt;label for="age" class="form-label"&gt;Age&lt;/label&gt;
+              &lt;input type="number" class="form-control" id="age" name="age" value="{{ old('age') }}" min="1" required&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="modal-footer"&gt;
+          &lt;button type="button" class="btn btn-secondary" data-bs-dismiss="modal"&gt;Close&lt;/button&gt;
+          &lt;button type="submit" class="btn btn-primary"&gt;Save&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div>
+
+            <div class="why-section">
+                <h5>Blade highlights</h5>
+                <ul class="mb-0">
+                    <li><code>@csrf</code> — adds a hidden token; Laravel rejects POSTs without it (CSRF protection).</li>
+                    <li><code>{{ }}</code> — escaped output (helps prevent XSS).</li>
+                    <li><code>route('students.store')</code> — named route URL; if you change the path in <code>web.php</code>, the form still works.</li>
+                    <li><code>old('first_name')</code> — repopulates fields after validation errors.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 9 Routes -->
+        <section id="routes" class="section">
+            <h2><span class="step-number">9</span>Routes — <code>routes/web.php</code></h2>
+            <div class="code-block"><pre><code class="language-php">&lt;?php
+
+use App\Http\Controllers\StudentController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', [StudentController::class, 'index'])-&gt;name('students.index');
+Route::post('/students', [StudentController::class, 'store'])-&gt;name('students.store');
+</code></pre></div>
+            <p><code>GET /</code> shows the list; <code>POST /students</code> handles the form (same flow as posting to <code>create_student.php</code> before).</p>
+        </section>
+
+        <!-- 10 Testing -->
+        <section id="testing" class="section">
+            <h2><span class="step-number">10</span>Run and test</h2>
+            <h3>Option A: Built-in server (simplest)</h3>
+            <p>From the project root:</p>
+            <div class="code-block"><pre><code class="language-bash">php artisan serve</code></pre></div>
+            <p>Open <a href="http://127.0.0.1:8000" target="_blank">http://127.0.0.1:8000</a></p>
+
+            <h3>Option B: XAMPP Apache</h3>
+            <p>Point a virtual host’s document root to <code>student-crud/public</code>, or symlink/copy carefully so the web root is always <code>public/</code> — never expose the whole Laravel folder.</p>
+
+            <h3>Checklist</h3>
+            <ul>
+                <li>MySQL running; database <code>student_crud</code> exists.</li>
+                <li><code>.env</code> <code>DB_*</code> matches your MySQL user/password.</li>
+                <li><code>php artisan migrate</code> completed without errors.</li>
+                <li>Create a student via the modal; see the success flash message and new row.</li>
+            </ul>
+
+            <div class="alert alert-warning">
+                <strong>Troubleshooting:</strong> “Access denied” → check <code>DB_USERNAME</code> / <code>DB_PASSWORD</code>. “Base table or view not found” → run migrations. 419 on submit → missing <code>@csrf</code> or session/cookie issues.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Summary</h2>
+            <p>You recreated the same student list + create flow using Laravel: <strong>Composer</strong> to install the framework, <strong>.env</strong> for DB and app settings, a <strong>migration</strong> for the <code>students</code> table, an <strong>Eloquent</strong> model, a <strong>controller</strong> for list/create logic, and a <strong>Blade</strong> view for the UI.</p>
+            <div class="alert alert-success mb-0">
+                <strong>Next steps:</strong> Add edit/update and delete routes and controller methods; use <code>Route::resource</code> for a full REST-style CRUD; learn Form Requests for larger validation rules.
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>
